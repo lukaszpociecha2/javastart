@@ -1,10 +1,17 @@
 package library.model;
 
+import java.util.Objects;
+
 public class Publication {
     private String title;
     private int year;
     private String publisher;
 
+    Publication(String title, int year, String publisher) {
+        this.title = title;
+        this.year = year;
+        this.publisher = publisher;
+    }
 
     public void setTitle(String title) {
         this.title = title;
@@ -28,5 +35,25 @@ public class Publication {
 
     public String getPublisher() {
         return publisher;
+    }
+
+    @Override
+    public String toString() {
+        return "title='" + title + ", publisher='" + publisher + ", year=" + year;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Publication that = (Publication) o;
+        return getYear() == that.getYear() &&
+                Objects.equals(getTitle(), that.getTitle()) &&
+                Objects.equals(getPublisher(), that.getPublisher());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getTitle(), getYear(), getPublisher());
     }
 }

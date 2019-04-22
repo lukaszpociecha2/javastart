@@ -1,12 +1,11 @@
 package library.app;
 
-import com.sun.xml.internal.bind.v2.TODO;
 import library.io.DataReader;
 import library.model.Book;
 import library.model.Library;
 import library.model.Magazine;
+import library.model.Publication;
 
-import static library.model.Library.getMAX_BOOKS;
 
 public class LibraryControl {
 
@@ -17,8 +16,6 @@ public class LibraryControl {
     private static final int PRINT_BOOKS = 2;
     private static final int ADD_MAGAZINE = 3;
     private static final int PRINT_MAGAZINES = 4;
-
-
 
 
     private Library library = new Library();
@@ -45,10 +42,10 @@ public class LibraryControl {
                 case PRINT_BOOKS:
                     printBooks(library);
                     break;
-                case ADD_MAGAZINE :
+                case ADD_MAGAZINE:
                     addMagazines();
                     break;
-                case PRINT_MAGAZINES :
+                case PRINT_MAGAZINES:
                     printMagazines();
                     break;
                 default:
@@ -71,9 +68,9 @@ public class LibraryControl {
         System.out.println("---------------");
     }
 
-
+    //add book + print books
     private void addBook() {
-        if (library.getBooksNumber() == getMAX_BOOKS()) {
+        if (library.getPublicationsNumber() == Library.getMaxPublications()) {
             System.out.println("Brak miejsca");
         } else {
             Book newBook = dataReader.readAndCreateBook();
@@ -83,37 +80,47 @@ public class LibraryControl {
     }
 
     public void printBooks(Library library) {
-        if (library.getBooksNumber() == 0) {
+        int booksCount = 0;
+        if (library.getPublicationsNumber() == 0) {
             System.out.println("W bibliotece nie ma ksiązek.");
         } else {
-            for (int i = 0; i < library.getBooksNumber(); i++) {
-                library.getBooks()[i].printInfo();
-                System.out.println("--------------------------");
+            for (int i = 0; i < library.getPublicationsNumber(); i++) {
+                if (library.getPublications()[i] instanceof Book) {
+                    System.out.println(library.getPublications()[i].toString());
+                    System.out.println("--------------------------");
+                    booksCount++;
+                } else System.out.println("Ilość książek w bibliotece: 0");
             }
         }
     }
 
-    public void addMagazines(){
-        if (library.getMagazinesNumber() == library.getMaxMagazines()) {
+    // add magazine + print magazines
+    public void addMagazines() {
+        if (library.getPublicationsNumber() == library.getMaxPublications()) {
             System.out.println("Maksymalna liczba magazynów osiągnięta.");
         } else {
             library.addMagazine(dataReader.readAndCreateMagazine());
         }
     }
 
-    public void printMagazines(){
-        if (library.getMagazinesNumber()==0){
+    public void printMagazines() {
+        int countMagazines = 0;
+        if (library.getPublicationsNumber() == 0) {
             System.out.println("W bibliotece nie ma magazynów");
         } else {
-            for (Magazine magazine : library.getMagazines()) {
-                magazine.printInfo();
+            for (Publication publication : library.getPublications()) {
+                if (publication instanceof Magazine) {
+                    System.out.println(publication.toString());
+                    System.out.println("--------------------------");
+                    countMagazines++;
+                } else System.out.println("Ilość magazynów w bibliotece: 0");
             }
         }
     }
 
 
     public void printInfo() {
-        System.out.println("System może przechowywać do " + getMAX_BOOKS() + " książek");
+        System.out.println("System może przechowywać do " + Library.getMaxPublications() + " książek");
     }
 
 
