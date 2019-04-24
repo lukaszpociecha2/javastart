@@ -1,25 +1,24 @@
 package library.app;
 
+import library.exception.NoSuchOptionException;
+import library.io.ConsolePrinter;
 import library.io.DataReader;
 import library.model.Book;
 import library.model.Library;
 import library.model.Magazine;
 import library.model.Publication;
 
+import java.util.InputMismatchException;
+
+import static library.app.Option.EXIT;
+import static library.model.Library.getMaxPublications;
+
 
 public class LibraryControl {
 
-    // OPTIONS
-
-    private static final int EXIT = 0;
-    private static final int ADD_BOOK = 1;
-    private static final int PRINT_BOOKS = 2;
-    private static final int ADD_MAGAZINE = 3;
-    private static final int PRINT_MAGAZINES = 4;
-
-
     private Library library = new Library();
-    private DataReader dataReader = new DataReader();
+    private ConsolePrinter consolePrinter = new ConsolePrinter();
+    private DataReader dataReader = new DataReader(consolePrinter);
 
     public LibraryControl() {
         System.out.println("Witaj w bibliotece.");
@@ -28,31 +27,32 @@ public class LibraryControl {
     public void controlLoop() {
 
         int option;
-
+        Option user_option;
         do {
             printOptions();
-            option = dataReader.getInt();
-            switch (option) {
+
+            user_option = getOption();
+            switch (user_option) {
                 case EXIT:
                     System.out.println("Koniec programu");
                     break;
                 case ADD_BOOK:
                     addBook();
                     break;
-                case PRINT_BOOKS:
-                    printBooks(library);
+                case READ_ALL_BOOKS:
+                    printBooks();
                     break;
                 case ADD_MAGAZINE:
                     addMagazines();
                     break;
-                case PRINT_MAGAZINES:
+                case READ_ALL_MAGAZINES:
                     printMagazines();
                     break;
                 default:
                     System.out.println("Nie ma takiej opcji");
 
             }
-        } while (option != EXIT);
+        } while (user_option != EXIT);
 
         dataReader.close();
     }
@@ -60,67 +60,70 @@ public class LibraryControl {
     private void printOptions() {
 
         System.out.println("Wybierz opcję: ");
-        System.out.println(EXIT + " - wyjście z programu");
-        System.out.println(ADD_BOOK + " - dodanie nowej książki");
-        System.out.println(PRINT_BOOKS + " - wyświetl dostępne książki");
-        System.out.println(ADD_MAGAZINE + " - dodanie nowego magazynu");
-        System.out.println(PRINT_MAGAZINES + " - wyświetl dostępne magazyny");
+
+        for (Option o : Option.values()
+        ) {
+            System.out.println(o.getOption() + " - " + o.getDescription());
+        }
+
         System.out.println("---------------");
+    }
+
+    private Option getOption() {
+        boolean optionOK = false;
+        Option option = null;
+        do {
+            try {
+                option = Option.getOptionFromInt(dataReader.getInt());
+                optionOK = true;
+
+            } catch (InputMismatchException e) {
+                consolePrinter.printLine("Wprowadziłeś wartośc która nie jest liczbą, podaj ponownie");
+
+            } catch (NoSuchOptionException e) {
+                consolePrinter.printLine(e.getMessage() + "Wybierz ponownie.");
+            }
+        } while (!optionOK);
+        return option;
     }
 
     //add book + print books
     private void addBook() {
-        if (library.getPublicationsNumber() == Library.getMaxPublications()) {
-            System.out.println("Brak miejsca");
-        } else {
+        try {
             Book newBook = dataReader.readAndCreateBook();
-            library.addBook(newBook);
-        }
+            library.addPublication(newBook);
+        } catch (InputMismatchException e){
+            consolePrinter.printLine("Niepoprawny format danych.");
 
-    }
-
-    public void printBooks(Library library) {
-        int booksCount = 0;
-        if (library.getPublicationsNumber() == 0) {
-            System.out.println("W bibliotece nie ma ksiązek.");
-        } else {
-            for (int i = 0; i < library.getPublicationsNumber(); i++) {
-                if (library.getPublications()[i] instanceof Book) {
-                    System.out.println(library.getPublications()[i].toString());
-                    System.out.println("--------------------------");
-                    booksCount++;
-                } else System.out.println("Ilość książek w bibliotece: 0");
-            }
+        } catch (ArrayIndexOutOfBoundsException e){
+            consolePrinter.printLine("Brak miejsca w bibliotece");
         }
     }
 
+    public void printBooks(){
+        consolePrinter.printBooks(library.getPublications());
+    }
     // add magazine + print magazines
+
     public void addMagazines() {
-        if (library.getPublicationsNumber() == library.getMaxPublications()) {
-            System.out.println("Maksymalna liczba magazynów osiągnięta.");
-        } else {
-            library.addMagazine(dataReader.readAndCreateMagazine());
+        try {
+            library.addPublication(dataReader.readAndCreateMagazine());
+        } catch (InputMismatchException e){
+            consolePrinter.printLine("Niepoprawny format danych.");
+
+        } catch (ArrayIndexOutOfBoundsException e){
+            consolePrinter.printLine("Brak miejsca w bibliotece");
         }
     }
 
-    public void printMagazines() {
-        int countMagazines = 0;
-        if (library.getPublicationsNumber() == 0) {
-            System.out.println("W bibliotece nie ma magazynów");
-        } else {
-            for (Publication publication : library.getPublications()) {
-                if (publication instanceof Magazine) {
-                    System.out.println(publication.toString());
-                    System.out.println("--------------------------");
-                    countMagazines++;
-                } else System.out.println("Ilość magazynów w bibliotece: 0");
-            }
-        }
+    public void printMagazines(){
+        consolePrinter.printMagazines(library.getPublications());
     }
+
 
 
     public void printInfo() {
-        System.out.println("System może przechowywać do " + Library.getMaxPublications() + " książek");
+        System.out.println("System może przechowywać do " + getMaxPublications() + " książek");
     }
 
 
