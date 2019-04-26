@@ -4,20 +4,9 @@ public interface Shape {
 
     Double PI = Math.PI;
 
-    void calculatePerimiter();
+    double calculatePerimiter();
 
-    void calculateArea();
+    double calculateArea();
 
-    default int increment(int i){
-        return ++i;
-    }
-
-    static int decrement(int i){
-        return --i;
-    }
-
-    default int getInt(int i){
-        return i;
-    }
 
 }

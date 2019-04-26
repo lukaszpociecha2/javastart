@@ -2,30 +2,38 @@ package excercises.interfaces;
 
 public class Rectangle implements Shape {
 
-    public int i;
-    public static int st1 = 10;
+    private double sideA;
+    private double sideB;
 
     public Rectangle() {
     }
 
+    public void setSideA(double sideA) {
+        this.sideA = sideA;
+    }
+
+    public void setSideB(double sideB) {
+        this.sideB = sideB;
+    }
+
+    public double getSideA() {
+        return sideA;
+    }
+
+    public double getSideB() {
+        return sideB;
+    }
+
     @Override
-    public void calculatePerimiter() {
-
-    }
-
-
-    public void calculatePerimiter(int a) {
-
+    public double calculatePerimiter() {
+        return 2*sideB*sideA;
     }
 
 
     @Override
-    public void calculateArea() {
-
+    public double calculateArea() {
+        return sideA*sideB;
     }
 
-    public static int tripple(int i){
-        return i*3;
-    }
 }
 
