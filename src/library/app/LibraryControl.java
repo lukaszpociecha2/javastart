@@ -5,11 +5,12 @@ import library.io.ConsolePrinter;
 import library.io.DataReader;
 import library.model.Book;
 import library.model.Library;
+import library.model.Magazine;
 
 import java.util.InputMismatchException;
 
 
-import static library.model.Library.getMaxPublications;
+import static library.model.Library.getInitialSize;
 
 
 public class LibraryControl {
@@ -46,6 +47,14 @@ public class LibraryControl {
                 case READ_ALL_MAGAZINES:
                     printMagazines();
                     break;
+                case DELETE_BOOK:
+                    deleteBook();
+                    break;
+
+                case DELETE_MAGAZINE:
+                    deleteMagazine();
+                    break;
+
                 default:
                     System.out.println("Nie ma takiej opcji");
 
@@ -85,43 +94,71 @@ public class LibraryControl {
         return option;
     }
 
-    //add book + print books
+    //add book + print books + delete book
     private void addBook() {
         try {
             Book newBook = dataReader.readAndCreateBook();
             library.addPublication(newBook);
-        } catch (InputMismatchException e){
+        } catch (InputMismatchException e) {
             consolePrinter.printLine("Niepoprawny format danych.");
 
-        } catch (ArrayIndexOutOfBoundsException e){
+        } catch (ArrayIndexOutOfBoundsException e) {
             consolePrinter.printLine("Brak miejsca w bibliotece");
         }
     }
 
-    public void printBooks(){
+    public void printBooks() {
         consolePrinter.printBooks(library.getPublications());
     }
-    // add magazine + print magazines
+
+
+    public void deleteBook() {
+        try {
+            Book bookToDelete = dataReader.readAndCreateBook();
+            if (library.removePublication(bookToDelete)) {
+                consolePrinter.printLine("Usunięto książkę");
+            } else {
+                consolePrinter.printLine("Nie ma takiej ksiązki");
+            }
+
+        } catch (InputMismatchException e) {
+            consolePrinter.printLine("Niepoprawny format danych.");
+        }
+    }
+
+    // add magazine + print magazines + delete magazine
 
     public void addMagazines() {
         try {
             library.addPublication(dataReader.readAndCreateMagazine());
-        } catch (InputMismatchException e){
+        } catch (InputMismatchException e) {
             consolePrinter.printLine("Niepoprawny format danych.");
 
-        } catch (ArrayIndexOutOfBoundsException e){
+        } catch (ArrayIndexOutOfBoundsException e) {
             consolePrinter.printLine("Brak miejsca w bibliotece");
         }
     }
 
-    public void printMagazines(){
+    public void printMagazines() {
         consolePrinter.printMagazines(library.getPublications());
     }
 
+    public void deleteMagazine() {
+        try {
+            Magazine magToDelete = dataReader.readAndCreateMagazine();
+            if (library.removePublication(magToDelete)) {
+                consolePrinter.printLine("Usunięto magazyn");
+            } else {
+                consolePrinter.printLine("Nie ma takiego magazynu");
+            }
 
+        } catch (InputMismatchException e) {
+            consolePrinter.printLine("Niepoprawny format danych.");
+        }
+    }
 
     public void printInfo() {
-        System.out.println("System może przechowywać do " + getMaxPublications() + " książek");
+        System.out.println("System może przechowywać do " + getInitialSize() + " książek");
     }
 
 
@@ -131,7 +168,10 @@ public class LibraryControl {
         ADD_BOOK(1, "dodaj książkę"),
         READ_ALL_BOOKS(2, "pokaż książki"),
         ADD_MAGAZINE(3, "dodaj magazyn"),
-        READ_ALL_MAGAZINES(4, "pokaż wszystkie magazyny");
+        READ_ALL_MAGAZINES(4, "pokaż wszystkie magazyny"),
+        DELETE_BOOK(5, "usuń książkę"),
+        DELETE_MAGAZINE(6, "usuń magazyn");
+
         //ERROR; zastąpiony NoSuchOptionException
 
         private int option;
@@ -142,7 +182,8 @@ public class LibraryControl {
             this.description = description;
         }
 
-        Option(){}
+        Option() {
+        }
 
         public int getOption() {
             return option;
